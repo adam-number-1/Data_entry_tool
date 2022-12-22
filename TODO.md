@@ -32,7 +32,8 @@
     - read - pop up window, where i can see the log content
     - purge - will simply blank out the log file - can be also a pop up window signaling this was done
 
-
+### ideas
+- multiple tabs, one of them is the circle tool. addresses + radius  -> gps -> i can open on a new tab the tool for circles
 
 
         
