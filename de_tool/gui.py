@@ -3,9 +3,10 @@ from __future__ import annotations
 from typing import List
 
 from PyQt5.QtCore import *
+from PyQt5.QtGui import QKeySequence
 from PyQt5.QtWidgets import (
     QApplication, QWidget, QMainWindow, QVBoxLayout, QTableWidget, QHBoxLayout, QPushButton, QToolBar, QAction, QLabel, 
-    QStatusBar, QDialog, QTableWidgetItem, QTabWidget
+    QStatusBar, QDialog, QTableWidgetItem, QTabWidget, QShortcut
     )
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 
@@ -21,7 +22,7 @@ def create_app() -> QApplication:
 
 class ObjectTable(QTableWidget):
 
-    attributes = ["id", "district", "shape", "link"]
+    attributes = ["id", "district", "street", "shape", "link"]
 
     def __init__(self) -> None:
         super().__init__()
@@ -114,6 +115,10 @@ class ObjectTable(QTableWidget):
         obj_index = self.currentRow()
         return self.object_list[obj_index].link
 
+    def get_ad_street(self) -> str:
+        obj_index = self.currentRow()
+        return self.object_list[obj_index].street
+
 class LogDialog(QDialog):
     """CLass for the log window widget"""
     def __init__(self):
@@ -170,9 +175,10 @@ class MainWindow(QMainWindow):
 
         # adding objects to the layout
         # the browser
-        self.browser = QWebEngineView()
+        self.browser = TabWidget()
         self.window_layout.addWidget(self.browser)
         self.central_widget.setLayout(self.window_layout)
+
 
         # add the table widget
         self.table = ObjectTable.create_table_from_obj_list(Apartment.get_objects())
@@ -247,6 +253,10 @@ class MainWindow(QMainWindow):
         # setting status bar 
         self.setStatusBar(QStatusBar(self))
 
+        # adding a shortcut to open the browser
+        self.browser_short = QShortcut(QKeySequence("Alt+O"), self)
+        self.browser_short.activated.connect(self.open_ad_button_clicked)
+
     def open_log(self) -> None:
             dlg = LogDialog()
             dlg.exec()
@@ -265,15 +275,19 @@ class MainWindow(QMainWindow):
         return QVBoxLayout()
 
     # button slot methods
-    def open_ad_button_clicked(self, clicked: bool):
+
+    def open_ad_button_clicked(self, *args):
 
         ad_to_open = None
+        ad_street = None
         try:
             ad_to_open = self.table.get_ad_link()
+            ad_street = self.table.get_ad_street()
         except:
             pass
 
-        self.browser.load(QUrl(ad_to_open))
+        self.browser.tab1.load(QUrl(ad_to_open))
+        self.browser.tab2.load(QUrl(f"https://www.google.cz/maps/place/{ad_street},+Praha"))
 
     def commit_button_clicked(self, clicked: bool):
         # i need to update all the objects in the list first and then i can commit
@@ -291,6 +305,7 @@ class MainWindow(QMainWindow):
 
     def remove_clicked(self, clicked: bool):
         selected_row = self.table.currentRow()
+        print(selected_row)
         if selected_row == -1:
             return
         self.table.delete_row(selected_row)

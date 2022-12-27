@@ -29,6 +29,7 @@ class Apartment(base): # sqlalchemy doesn¨t like tables with no PK
     id = Column(Integer, name="id", primary_key = True)
     link = Column(String(200), name="link")
     district = Column(String(50), name="district")
+    street = Column(String(50), name="street")
     shape = Column(String(4), name="shape")
 
 
@@ -55,6 +56,7 @@ if __name__ == "__main__":
     "id" : 1,
     "link" : "https://www.sreality.cz/detail/prodej/byt/3+1/praha-vrsovice-moskevska/269964876",
     "district" : "A",
+    "street" : "Moskevská",
     "shape" : None
     }
 
@@ -62,6 +64,7 @@ if __name__ == "__main__":
     "id" : 2,
     "link" : "https://www.sreality.cz/detail/prodej/byt/1+1/praha-stare-mesto-narodni/2712798796",
     "district" : "B",
+    "street" : "Národní",
     "shape" : None
     }
 
@@ -69,6 +72,7 @@ if __name__ == "__main__":
     "id" : 3,
     "link" : "https://www.sreality.cz/detail/prodej/byt/2+kk/praha-zizkov-jicinska/3153643868",
     "district" : "C",
+    "street" : "Jičínská",
     "shape" : None
     }
 
