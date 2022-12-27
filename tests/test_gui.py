@@ -1,6 +1,6 @@
 import pytest
 
-from de_tool import create_app, QApplication, MainWindow
+from de_tool.gui import create_app, QApplication, MainWindow
 
 class TestQAPP:
 
@@ -24,4 +24,6 @@ class TestQAPP:
         win = MainWindow()
 
         assert win.windowTitle() == "Data entry tool"
+
+    
 
