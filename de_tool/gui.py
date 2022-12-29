@@ -12,7 +12,7 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView
 
 import sys
 
-from de_tool.decs import empty_check
+
 from de_tool.db_model import Apartment, session
 
 def create_app() -> QApplication:
