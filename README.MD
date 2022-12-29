@@ -1,2 +1,4 @@
 # DATA ENTRY PROGRAM
-A program with PyQT5 Gui, which helps the user to modify selected field from MySQL database.
+A program with PyQT5 Gui, which allows some user effectively entry data. It is a tool designed for an actual database, which is frequently loaded with automatically collected data. However the collected data has some attributes, which the system cannot collect (at least as of now) like visual evaluation of the observed objects etc. 
+
+This program is supposed to be a all in one place workbench, which allows the user to cut down manual entry time from minutes to just few seconds by eliminating the amount of windows the user would need to have oppened on their desktop. The user can conveniently browse the visual content and at the same time edit fields in a table, which are synchronized with a database - every change invokes a commit of changes on the data objects.
