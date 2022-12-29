@@ -6,77 +6,49 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-
-from sqlalchemy import create_engine, Column, Integer, String, Date, inspect
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-
 DIALECT = os.environ.get("DIALECT")
 DB_USERNAME = os.environ.get("DB_USERNAME")
 PASSWORD = os.environ.get("PASSWORD")
 LINK = os.environ.get("LINK")
 NAME_OF_DB = os.environ.get("NAME_OF_DB")
 
-engine = create_engine(f"{DIALECT}://{DB_USERNAME}:{PASSWORD}@{LINK}/{NAME_OF_DB}")
+import sqlalchemy as sa
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy.orm import Session
 
-session = sessionmaker(bind=engine)()
+# Connect to the database
+engine = sa.create_engine(f"{DIALECT}://{DB_USERNAME}:{PASSWORD}@{LINK}/{NAME_OF_DB}")
 
-base = declarative_base()
+# Reflect the existing table
+Base = automap_base()
+Base.prepare(engine, reflect=True)
 
-class Apartment(base): # sqlalchemy doesn¨t like tables with no PK
-    __tablename__ = "apartment_sales_records"
+# Create a class for the table
+BaseApartment = Base.classes.apt_sales_data
 
-    id = Column(Integer, name="id", primary_key = True)
-    link = Column(String(200), name="link")
-    district = Column(String(50), name="district")
-    street = Column(String(50), name="street")
-    shape = Column(String(4), name="shape")
+# Create a session to query the table
+session = Session(engine)
 
-
+class Apartment: # sqlalchemy doesn¨t like tables with no PK
     #here will be all the columns
+
+    def __init__(self, entry: BaseApartment) -> None:
+        self.entry = entry
 
     @classmethod
     def get_objects(cls) -> List[Apartment]:
-        list_of_objects = session.query(cls).filter(cls.shape.is_(None)).all()
+        list_of_objects = session.query(BaseApartment).filter(BaseApartment.apt.is_(None)).all()
+        list_of_objects = [Apartment(entry) for entry in list_of_objects]
         return list_of_objects
 
     def get(self, attr_name: str) -> Any:
         """Returns an object attribute given its name"""
-        return self.__getattribute__(attr_name)
+        return self.entry.__getattribute__(attr_name)
 
     def set(self, attr_name: str, value: Any) -> None:
         """Sets the attribute of an object"""
-        self.__setattr__(attr_name, value)
-
-base.metadata.create_all(engine)
+        self.entry.__setattr__(attr_name, value)
 
 if __name__ == "__main__":
-    
-    apt1 = {
-    "id" : 1,
-    "link" : "https://www.sreality.cz/detail/prodej/byt/3+1/praha-vrsovice-moskevska/269964876",
-    "district" : "A",
-    "street" : "Moskevská",
-    "shape" : None
-    }
-
-    apt2 = {
-    "id" : 2,
-    "link" : "https://www.sreality.cz/detail/prodej/byt/1+1/praha-stare-mesto-narodni/2712798796",
-    "district" : "B",
-    "street" : "Národní",
-    "shape" : None
-    }
-
-    apt3 = {
-    "id" : 3,
-    "link" : "https://www.sreality.cz/detail/prodej/byt/2+kk/praha-zizkov-jicinska/3153643868",
-    "district" : "C",
-    "street" : "Jičínská",
-    "shape" : None
-    }
-
-    
-    for apt in [apt1,apt2,apt3]:
-        session.merge(Apartment(**apt))
-        session.commit()
+    apt = session.query(Apartment).first()
+    print("done")

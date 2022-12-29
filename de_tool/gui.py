@@ -17,12 +17,12 @@ from de_tool.db_model import Apartment, session
 
 def create_app() -> QApplication:
     """Returns the QApplication."""
-    app = QApplication(sys.argv)
+    app = QApplication([])
     return app
 
 class ObjectTable(QTableWidget):
 
-    attributes = ["id", "district", "street", "shape", "link"]
+    attributes = ["id", "district", "street", "number", "house", "apt", "furnished"]
 
     def __init__(self) -> None:
         super().__init__()
@@ -47,6 +47,7 @@ class ObjectTable(QTableWidget):
         self.INGORE_AUTO_COMMIT = True
         self.clearContents()
         
+        
         if self.object_list:
             self.setRowCount(len(self.object_list))
             self.setColumnCount(len(self.attributes))
@@ -55,13 +56,18 @@ class ObjectTable(QTableWidget):
             for obj in self.object_list:
                 col = 0
                 for attr in self.attributes:
-                    
-                    
-                    self.setItem(row,col,QTableWidgetItem(str(obj.get(attr))))
+                    # item.setFlags(item.flags() ^ QtCore.Qt.ItemIsEditable)
+
+                    item = QTableWidgetItem(str(obj.get(attr)))
+
+                    if attr == "id":
+                        item.setFlags(item.flags() ^ Qt.ItemIsEditable)
+                    self.setItem(row,col,item)
                     
                     col +=1
                 row+=1
 
+        self.setHorizontalHeaderLabels(self.attributes)
         self.INGORE_AUTO_COMMIT = False
     
     
@@ -76,14 +82,14 @@ class ObjectTable(QTableWidget):
         if not obj_to_delete:
             return
 
-        session.delete(obj_to_delete)
+        session.delete(obj_to_delete.entry)
         self.object_list = self.object_list[:row_number] + self.object_list[row_number+1:]
         self.removeRow(row_number)
 
     def blacklist_ad(self, obj_index: int):
         link_to_blacklist = None
         try:
-            link_to_blacklist = self.object_list[obj_index].link
+            link_to_blacklist = self.object_list[obj_index].entry.link
         except:
             pass
 
@@ -113,11 +119,11 @@ class ObjectTable(QTableWidget):
 
     def get_ad_link(self) -> str:
         obj_index = self.currentRow()
-        return self.object_list[obj_index].link
+        return self.object_list[obj_index].entry.link
 
     def get_ad_street(self) -> str:
         obj_index = self.currentRow()
-        return self.object_list[obj_index].street
+        return self.object_list[obj_index].entry.street
 
 class LogDialog(QDialog):
     """CLass for the log window widget"""
@@ -264,7 +270,7 @@ class MainWindow(QMainWindow):
     def purge_log(self) -> None:
             with open("de_tool\log.txt", "w+", encoding="utf-8") as log:
                 log.write("")
-            
+    
 
     def set_title_of_the_window(self, window_title: str) -> None:
         """Sets the title of a window"""
