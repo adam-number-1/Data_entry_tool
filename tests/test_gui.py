@@ -93,7 +93,6 @@ class TestObjectTable:
         assert not session_mock.called
 
         session_mock.reset_mock()
-        
 
         class MockDict:
             def __init__(self, d):
@@ -109,7 +108,52 @@ class TestObjectTable:
         test_table.delete_row(1)
         session_mock.assert_called_with(test_l[1].entry)
 
+    @patch('de_tool.gui.session.execute')
+    def test_blacklist_ad(self,session_execute_mock):
+        test_table = ObjectTable()
+        obj_list = []
 
+        for n in range(3):
+            mock = Mock()
+            mock.entry.link = str(n)
+            obj_list.append(mock)
+
+        test_table.add_list(obj_list)
+
+        test_table.blacklist_ad(1)
+        session_execute_mock.assert_called_with("INSERT INTO sales_blacklist (link) VALUES ('1') ON DUPLICATE KEY UPDATE link = link;")
+
+
+    def test_update_object_list(self):
+
+        class ListItem(dict):
+            def set(self, attr:str, val: int | str) -> None:
+                self[attr] = val
+
+            def get(self, attr:str):
+                return self[attr]
+
+        keys = ["id", "district", "street", "number", "house", "apt", "furnished"]
+        list_of_items = []
+
+        for n in range(3):
+            new_values = [n] + [str(n)+_ for _ in "012345"]
+            list_of_items.append(ListItem(zip(keys,new_values)))
+
+        list_of_check = []
+
+        for n in range(3,6):
+            new_values = [n] + [str(n)+_ for _ in "012345"]
+            list_of_check.append(ListItem(zip(keys,new_values)))
+        
+        tested_table = ObjectTable.create_table_from_obj_list(list_of_items)
+        tested_table.draw_table()
+
+        tested_table.add_list(list_of_check)
+        tested_table.update_object_list()
+
+        assert tested_table.object_list == list_of_items
+        
           
 
             
