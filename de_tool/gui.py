@@ -13,7 +13,7 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView
 import sys
 
 
-from de_tool.db_model import Apartment, session
+
 
 def create_app() -> QApplication:
     """Returns the QApplication."""
@@ -334,6 +334,7 @@ class MainWindow(QMainWindow):
         session.commit()
 
 if __name__ == "__main__":
+    from de_tool.db_model import Apartment, session
     
     app = create_app()
 
